@@ -3,15 +3,25 @@ using System.Runtime.CompilerServices;
 class Program
 {
     static void Main()
-    {
-        while (true)
+    {   
+        bool isRunning = true;
+        while (isRunning)
         {
             Console.Write("$ ");
             string? command = Console.ReadLine();
 
             if (command != null)
             {
-                Console.WriteLine($"{command}: command not found");
+                switch (command)
+                {
+                    case "exit":
+                        isRunning = false;
+                        break;
+                    default:
+                        Console.WriteLine($"{command}: command not found");
+                        continue;
+                }
+                
             }
         }
     }
