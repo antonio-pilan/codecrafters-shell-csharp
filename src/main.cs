@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Commands;
 
 class Program
 {
@@ -8,21 +9,12 @@ class Program
         while (isRunning)
         {
             Console.Write("$ ");
-            string? command = Console.ReadLine();
+            string? fullCommand = Console.ReadLine();
 
-            if (command != null)
-            {
-                switch (command)
-                {
-                    case "exit":
-                        isRunning = false;
-                        break;
-                    default:
-                        Console.WriteLine($"{command}: command not found");
-                        continue;
-                }
-                
-            }
+            if (string.IsNullOrWhiteSpace(fullCommand)) continue;
+
+            var (cmd, param) = CommandHandler.ParseCommand(fullCommand);
+            CommandHandler.HandleCommand(cmd, param);
         }
     }
 }
