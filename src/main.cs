@@ -15,7 +15,6 @@ class Program
 
             var (cmd, param) = CommandHandler.ParseCommand(fullCommand);
             cmd = cmd.ToLower();
-            param = param.ToLower();
             
             CommandHandler.HandleCommand(cmd, param);
         }

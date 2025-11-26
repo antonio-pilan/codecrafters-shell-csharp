@@ -4,20 +4,21 @@ namespace Utils
 {
     public class PathVariables
     {
-        public static string GetPath(string command)
+        public static string? GetPath(string command)
         {
             string? systemPath = Environment.GetEnvironmentVariable("Path");
             
-            List<string> pathList = new List<string>();
             if (!string.IsNullOrEmpty(systemPath))
             {
-                string? expandedPath = Environment.ExpandEnvironmentVariables(systemPath);
+                string expandedPath = Environment.ExpandEnvironmentVariables(systemPath);
+
                 string[] paths = expandedPath.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
                 foreach (string path in paths)
                 {   
-                    string pathLower = path.ToLower();
-                    string exe = GetExecutable(pathLower, command);
-                    //Console.WriteLine(exe);
+                    string cleanPath = path.Trim();
+                    string? exe = GetExecutable(cleanPath, command);
+                    
                     if (exe != null)
                     {
                         return exe;
@@ -27,22 +28,23 @@ namespace Utils
             return null;
         }
 
-        public static string GetExecutable(string fullPath, string executable)
+        public static string? GetExecutable(string directory, string filename)
         {
-            if (string.IsNullOrEmpty(fullPath)) return null;
-            DirectoryInfo? currentDir = new DirectoryInfo(fullPath);
+            if (string.IsNullOrEmpty(directory)) return null;
 
-            executable = executable + ".exe";
-            
-            while (currentDir != null)
+            string fullPath = Path.Combine(directory, filename);
+
+            if (File.Exists(fullPath)) 
             {
-                string candidatePath = Path.Combine(currentDir.FullName, executable);
-                if (File.Exists(candidatePath))
-                {
-                    return candidatePath;
-                }
-                currentDir = currentDir.Parent;
+                return fullPath;
             }
+            
+            string exePath = fullPath + ".exe";
+            if (File.Exists(exePath))
+            {
+                return exePath;
+            }
+
             return null;
         }
     }
