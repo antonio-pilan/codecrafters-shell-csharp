@@ -7,11 +7,12 @@ namespace Utils
         public static string GetPath(string command)
         {
             string? systemPath = Environment.GetEnvironmentVariable("Path");
-
+            
             List<string> pathList = new List<string>();
             if (!string.IsNullOrEmpty(systemPath))
             {
-                string[] paths = systemPath.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                string? expandedPath = Environment.ExpandEnvironmentVariables(systemPath);
+                string[] paths = expandedPath.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string path in paths)
                 {   
                     string pathLower = path.ToLower();
