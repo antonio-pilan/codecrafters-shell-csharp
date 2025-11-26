@@ -1,4 +1,5 @@
 using System.Reflection.Metadata.Ecma335;
+using System.IO;
 
 namespace Utils
 {
@@ -36,7 +37,7 @@ namespace Utils
 
             if (File.Exists(fullPath)) 
             {
-                return fullPath;
+                if (IsExecutable(fullPath)) return fullPath;  
             }
 
             string exePath = fullPath + ".exe";
@@ -46,6 +47,21 @@ namespace Utils
             }
 
             return null;
+        }
+
+        private static bool IsExecutable(string path)
+        {
+            if (OperatingSystem.IsWindows()) return true;
+
+            try 
+            {
+                UnixFileMode mode = File.GetUnixFileMode(path);
+                return (mode & (UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute)) != 0;
+            }
+            catch 
+            {
+                return false;
+            }
         }
     }
 }
