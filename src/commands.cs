@@ -1,9 +1,11 @@
 using System.Reflection.Metadata.Ecma335;
+using Utils;
 
 namespace Commands
 {
     public static class CommandHandler
     {
+        // Command dictionary
         private static readonly Dictionary<string, Action<string>> _commandMap = new()
         {
             { "exit", _ => Environment.Exit(0) },
@@ -11,7 +13,7 @@ namespace Commands
             { "type", parameters => TypeCommand(parameters) } 
         };
 
-
+        // Handlers implementations:
         public static void HandleCommand(string command, string parameters)
         {
             if (_commandMap.TryGetValue(command, out Action<string>? action))
@@ -41,12 +43,18 @@ namespace Commands
             return (command, parameters);
         }
 
-    public static void TypeCommand(string parameters)
+        // Commands implementations:
+        public static void TypeCommand(string parameters)
         {
             string parameterType = "";
+            string? executable = PathVariables.GetPath(parameters);
             
-            if (_commandMap.ContainsKey(parameters))
-                parameterType = "builtin";
+            if (_commandMap.ContainsKey(parameters)) parameterType = "builtin";
+            else if (executable != null)
+            {
+                Console.WriteLine($"{parameters} is {executable}");
+                return;
+            }
             else
             {
                 Console.WriteLine($"{parameters}: not found");
