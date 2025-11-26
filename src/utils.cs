@@ -12,7 +12,7 @@ namespace Utils
             {
                 string expandedPath = Environment.ExpandEnvironmentVariables(systemPath);
 
-                string[] paths = expandedPath.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] paths = expandedPath.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (string path in paths)
                 {   
@@ -38,7 +38,7 @@ namespace Utils
             {
                 return fullPath;
             }
-            
+
             string exePath = fullPath + ".exe";
             if (File.Exists(exePath))
             {
