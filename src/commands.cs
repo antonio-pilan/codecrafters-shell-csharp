@@ -18,7 +18,24 @@ namespace Commands
         {
             if (_commandMap.TryGetValue(command, out Action<string>? action))
                 action(parameters);
-            
+            else if (PathVariables.GetPath(command) is string executablePath)
+            {
+                try //TODO: implementar rodar algoritmo corretamente seguindo as especificações do codecrafters
+                {
+                    var process = new System.Diagnostics.Process();
+                    process.StartInfo.FileName = executablePath;
+                    process.StartInfo.Arguments = parameters;
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardOutput = false;
+                    process.StartInfo.RedirectStandardError = false;
+                    process.Start();
+                    process.WaitForExit();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error executing command '{command}': {ex.Message}");
+                }
+            }
             else
                 Console.WriteLine($"{command}: command not found");    
         }

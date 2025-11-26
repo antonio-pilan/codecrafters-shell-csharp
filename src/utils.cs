@@ -34,18 +34,14 @@ namespace Utils
             if (string.IsNullOrEmpty(directory)) return null;
 
             string fullPath = Path.Combine(directory, filename);
-
             if (File.Exists(fullPath)) 
             {
                 if (IsExecutable(fullPath)) return fullPath;  
             }
 
             string exePath = fullPath + ".exe";
-            if (File.Exists(exePath))
-            {
-                return exePath;
-            }
-
+            if (File.Exists(exePath)) return exePath;
+        
             return null;
         }
 
@@ -64,4 +60,21 @@ namespace Utils
             }
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 }
