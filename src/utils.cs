@@ -6,7 +6,7 @@ namespace Utils
     {
         public static string? GetPath(string command)
         {
-            string? systemPath = Environment.GetEnvironmentVariable("Path");
+            string? systemPath = Environment.GetEnvironmentVariable("PATH");
             
             if (!string.IsNullOrEmpty(systemPath))
             {
