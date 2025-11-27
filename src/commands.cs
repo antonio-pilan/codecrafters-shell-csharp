@@ -10,7 +10,8 @@ namespace Commands
         {
             { "exit", _ => Environment.Exit(0) },
             { "echo", parameters => Console.WriteLine(parameters) },
-            { "type", parameters => TypeCommand(parameters) } 
+            { "type", parameters => TypeCommand(parameters) } ,
+            { "pwd", parameters => Console.WriteLine(Directory.GetCurrentDirectory())}
         };
 
         // Handlers implementations:
