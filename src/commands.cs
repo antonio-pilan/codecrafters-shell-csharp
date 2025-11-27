@@ -20,10 +20,11 @@ namespace Commands
                 action(parameters);
             else if (PathVariables.GetPath(command) is string executablePath)
             {
+                var parametersList = parameters.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                 try //TODO: implementar rodar algoritmo corretamente seguindo as especificações do codecrafters
                 {
                     var process = new System.Diagnostics.Process();
-                    process.StartInfo.FileName = executablePath;
+                    process.StartInfo.FileName = command;
                     process.StartInfo.Arguments = parameters;
                     process.StartInfo.UseShellExecute = false;
                     process.StartInfo.RedirectStandardOutput = false;
