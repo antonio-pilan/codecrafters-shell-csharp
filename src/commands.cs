@@ -1,4 +1,5 @@
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.CompilerServices;
 using Utils;
 
 namespace Commands
@@ -11,7 +12,8 @@ namespace Commands
             { "exit", _ => Environment.Exit(0) },
             { "echo", parameters => Console.WriteLine(parameters) },
             { "type", parameters => TypeCommand(parameters) } ,
-            { "pwd", parameters => Console.WriteLine(Directory.GetCurrentDirectory())}
+            { "pwd", parameters => Console.WriteLine(Directory.GetCurrentDirectory()) },
+            { "cd", parameters => cdCommand(parameters) }
         };
 
         // Handlers implementations:
@@ -81,6 +83,39 @@ namespace Commands
             }
             
             Console.WriteLine($"{parameters} is a shell {parameterType}");
+        }
+
+        public static void cdCommand(string parameters)
+        {
+            var currentDirectory = Directory.GetCurrentDirectory();
+            switch (parameters)
+            {
+                case "./":
+                    var parentDirectory = Directory.GetParent(currentDirectory);
+                    if (parentDirectory != null)
+                    {
+                        Directory.SetCurrentDirectory(parentDirectory.FullName);
+                    }
+                    break;
+
+                case "../":
+                    int indexer = 0;
+                    
+                    while (indexer <2)
+                    {
+                        currentDirectory = Directory.GetCurrentDirectory();
+                        parentDirectory = Directory.GetParent(currentDirectory);
+                        if (parentDirectory != null)
+                        {
+                            Directory.SetCurrentDirectory(parentDirectory.FullName);
+                        } 
+                        indexer += 1;
+                    }
+                        break;
+                default:
+                    directoryManipulation.fromPath(parameters);
+                    break;
+            }
         }
     }
 }

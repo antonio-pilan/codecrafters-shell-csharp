@@ -61,6 +61,21 @@ namespace Utils
         }
     }
 
+    public class directoryManipulation
+    {
+        public static void fromPath(string newDirectory)
+        {
+            try
+            {
+                Directory.SetCurrentDirectory(newDirectory);
+            }
+            catch
+            {
+                Console.WriteLine($"cd: {newDirectory}: No such file or directory");
+            }
+        }
+    }
+
 
 
 
