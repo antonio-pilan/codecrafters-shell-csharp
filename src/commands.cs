@@ -112,8 +112,13 @@ namespace Commands
                         indexer += 1;
                     }
                         break;
+                
+                case "~":
+                    var homeDirectory = DirectoryManipulation.GetHomeDirectory();
+                    Directory.SetCurrentDirectory(homeDirectory);
+                    break;
                 default:
-                    directoryManipulation.fromPath(parameters);
+                    DirectoryManipulation.fromPath(parameters);
                     break;
             }
         }

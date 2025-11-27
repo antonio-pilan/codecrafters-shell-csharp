@@ -1,5 +1,7 @@
 using System.Reflection.Metadata.Ecma335;
 using System.IO;
+using System.Net.NetworkInformation;
+using Microsoft.VisualBasic;
 
 namespace Utils
 {
@@ -61,7 +63,7 @@ namespace Utils
         }
     }
 
-    public class directoryManipulation
+    public class DirectoryManipulation
     {
         public static void fromPath(string newDirectory)
         {
@@ -73,6 +75,11 @@ namespace Utils
             {
                 Console.WriteLine($"cd: {newDirectory}: No such file or directory");
             }
+        }
+
+        public static string GetHomeDirectory()
+        {
+            return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         }
     }
 
