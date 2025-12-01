@@ -181,9 +181,10 @@ namespace Commands
 
         public static void CatCommand(string[] parameters)
         {
-            for (int i=0; i > parameters.Length; i++)
+            for (int i=0; i >= parameters.Length; i++)
             {
                 Console.Write(parameters[i]);
+
                 if (i< parameters.Length - 1)
                     Console.Write(" ");
             }
