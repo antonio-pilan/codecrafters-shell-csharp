@@ -32,7 +32,7 @@ namespace Commands
                 {
                     var process = new System.Diagnostics.Process();
 
-                    process.StartInfo.FileName = executablePath;
+                    process.StartInfo.FileName = command;
                     foreach (var param in parameters)
                         {
                             process.StartInfo.ArgumentList.Add(param);
