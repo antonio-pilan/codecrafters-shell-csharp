@@ -61,14 +61,14 @@ namespace Commands
 
             foreach (char c in fullCommand)
             {
-                if (c == '\'')
+                if (c == '"')
                 {   
-                    // If we hit a quote, we toggle the inQuotes flag for handling spaces inside quotes
+                    // If we hit a double quote, we toggle the inQuotes flag for handling characters inside quotes
                     inQuotes = !inQuotes;
                 }
-                else if ( c == '"' )
+                else if (c == '\'')
                 {
-                    // If we hit a double quote, we toggle the inQuotes flag for handling characters inside quotes
+                    // If we hit a single quote, we toggle the inQuotes flag for handling spaces inside quotes
                     inQuotes = !inQuotes;
                 }
                 else if (char.IsWhiteSpace(c) && !inQuotes)
