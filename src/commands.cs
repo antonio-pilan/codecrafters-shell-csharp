@@ -58,20 +58,21 @@ namespace Commands
             var tokens = new List<string>();
             var currentToken = new StringBuilder();
             bool inQuotes = false;
+            bool inDoubleQuotes = false;
 
             foreach (char c in fullCommand)
             {
                 if (c == '"')
                 {   
                     // If we hit a double quote, we toggle the inQuotes flag for handling characters inside quotes
-                    inQuotes = !inQuotes;
+                    inDoubleQuotes = !inDoubleQuotes;
                 }
-                else if (c == '\'')
+                else if (c == '\'' && !inDoubleQuotes)
                 {
                     // If we hit a single quote, we toggle the inQuotes flag for handling spaces inside quotes
                     inQuotes = !inQuotes;
                 }
-                else if (char.IsWhiteSpace(c) && !inQuotes)
+                else if (char.IsWhiteSpace(c) && !inQuotes && !inDoubleQuotes)
                 {   
                     // Adds current token to the list and resets the buffer
                     if (currentToken.Length > 0)
