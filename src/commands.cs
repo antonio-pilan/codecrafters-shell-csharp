@@ -15,7 +15,6 @@ namespace Commands
             { "type", args => TypeCommand(args) } ,
             { "pwd", parameters => Console.WriteLine(Directory.GetCurrentDirectory()) },
             { "cd", args => cdCommand(args) },
-            { "cat", args => CatCommand(args) }
         };
 
         // Handlers implementations: //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -176,37 +175,6 @@ namespace Commands
                 default:
                     DirectoryManipulation.FromPath(parameter);
                     break;
-            }
-        }
-
-        public static void CatCommand(string[] parameters)
-        {
-            if (parameters.Length == 0)
-            {
-                Console.WriteLine("cat: file operand expected");
-                return;
-            }
-
-            foreach (var filePath in parameters)
-            {
-                if (!File.Exists(filePath))
-                {
-                    Console.WriteLine($"cat: {filePath}: No such file or directory");
-                    continue; 
-                }
-                try
-                {
-                    string content = File.ReadAllText(filePath);
-                    Console.WriteLine(content);
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    Console.WriteLine($"cat: {filePath}: Permission denied");
-                }
-                catch (IOException ex)
-                {
-                    Console.WriteLine($"cat: read error: {ex.Message}");
-                }
             }
         }
 
