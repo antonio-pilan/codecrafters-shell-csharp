@@ -8,28 +8,36 @@ namespace Commands
     public static class CommandHandler
     {
         // Command dictionary: ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        private static readonly Dictionary<string, Action<string>> _commandMap = new()
+        private static readonly Dictionary<string, Action<string[]>> _commandMap = new()
         {
             { "exit", _ => Environment.Exit(0) },
-            { "echo", parameters => Console.WriteLine(parameters) },
-            { "type", parameters => TypeCommand(parameters) } ,
+            { "echo", args => Console.WriteLine(string.Join(" ", args)) },
+            { "type", args => TypeCommand(args) } ,
             { "pwd", parameters => Console.WriteLine(Directory.GetCurrentDirectory()) },
-            { "cd", parameters => cdCommand(parameters) }
+            { "cd", args => cdCommand(args) },
+            { "cat", args => CatCommand(args) }
         };
 
         // Handlers implementations: //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public static void HandleCommand(string command, string parameters)
+        public static void HandleCommand(string command, string[] parameters)
         {
-            if (_commandMap.TryGetValue(command, out Action<string>? action))
+            if (_commandMap.TryGetValue(command, out Action<string[]>? action))
+            {
                 action(parameters);
+                return;
+            }
+                
             else if (PathVariables.GetPath(command) is string executablePath)
             {
-                var parametersList = parameters.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                 try 
                 {
                     var process = new System.Diagnostics.Process();
-                    process.StartInfo.FileName = command;
-                    process.StartInfo.Arguments = parameters;
+
+                    process.StartInfo.FileName = executablePath;
+                    foreach (var param in parameters)
+                        {
+                            process.StartInfo.ArgumentList.Add(param);
+                        }
                     process.StartInfo.UseShellExecute = false;
                     process.StartInfo.RedirectStandardOutput = false;
                     process.StartInfo.RedirectStandardError = false;
@@ -45,7 +53,7 @@ namespace Commands
                 Console.WriteLine($"{command}: command not found");    
         }
 
-    public static (string Command, string Parameters) ParseCommand(string fullCommand)
+    public static (string Command, string[] Parameters) ParseCommand(string fullCommand)
     {
         var tokens = new List<string>();
         var currentToken = new StringBuilder();
@@ -79,48 +87,66 @@ namespace Commands
         
         // Return Handling //////////////////////
         if (tokens.Count == 0)
-            return ("", "");
+            return ("", Array.Empty<string>());
         
 
         // First token is the command
         string command = tokens[0];
-
-        // Rebuild parameters string
-        string parameters = "";
-        
-        if (tokens.Count > 1)
-            parameters = string.Join(" ", tokens.Skip(1));
+        string[] parameters = tokens.Skip(1).ToArray();
 
         return (command, parameters);
     }
 
         // Commands implementations: ////////////////////////////////////////////////////////////////////////////////////////
-        public static void TypeCommand(string parameters)
+        public static void TypeCommand(string[] parameters)
         {
             string parameterType = "";
-            string? executable = PathVariables.GetPath(parameters);
+            string? executable = null;
+            string parameter = "";
+            int numberOfParameters = parameters.Length;
+
+            if (numberOfParameters == 1)
+            {
+                parameter = parameters[0];
+                executable = PathVariables.GetPath(parameter);
+            }
+            else
+            {
+                string errorString = String.Join(" ", parameters);
+                Console.WriteLine($"{errorString}: not found");
+                return;
+            }
             
-            if (_commandMap.ContainsKey(parameters)) parameterType = "builtin";
+            if (_commandMap.ContainsKey(parameter)) 
+                parameterType = "builtin";
             else if (executable != null)
             {
-                Console.WriteLine($"{parameters} is {executable}");
+                Console.WriteLine($"{parameter} is {executable}");
                 return;
             }
             else
             {
-                Console.WriteLine($"{parameters}: not found");
+                Console.WriteLine($"{parameter}: not found");
                 return;
             }
             
-            Console.WriteLine($"{parameters} is a shell {parameterType}");
+            Console.WriteLine($"{parameter} is a shell {parameterType}");
         }
 
-        public static void cdCommand(string parameters)
+        public static void cdCommand(string[] parameters)
         {
             var currentDirectory = Directory.GetCurrentDirectory();
-            switch (parameters)
+            string? parameter = null;
+
+            if (parameters.Length == 1)
             {
-                case "./":
+                parameter = parameters[0];
+            }
+            else return;
+
+            switch (parameter)
+            {
+                case "./" or ".":
                     var parentDirectory = Directory.GetParent(currentDirectory);
                     if (parentDirectory != null)
                     {
@@ -128,7 +154,7 @@ namespace Commands
                     }
                     break;
 
-                case "../":
+                case "../" or "..":
                     int indexer = 0;
                     
                     while (indexer <2)
@@ -148,9 +174,18 @@ namespace Commands
                     Directory.SetCurrentDirectory(homeDirectory);
                     break;
                 default:
-                    DirectoryManipulation.FromPath(parameters);
+                    DirectoryManipulation.FromPath(parameter);
                     break;
             }
+        }
+
+        public static void CatCommand(string[] parameters)
+        {
+            foreach (string? parameter in parameters)
+            {
+                Console.Write(parameter);
+            }
+            Console.WriteLine();
         }
     }
 }
