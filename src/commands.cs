@@ -183,7 +183,7 @@ namespace Commands
         {
             foreach (string? parameter in parameters)
             {
-                Console.Write(parameter);
+                Console.Write(parameter + " ");
             }
             Console.WriteLine();
         }
