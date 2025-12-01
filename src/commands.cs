@@ -1,5 +1,6 @@
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Utils;
 
@@ -63,6 +64,11 @@ namespace Commands
                 if (c == '\'')
                 {   
                     // If we hit a quote, we toggle the inQuotes flag for handling spaces inside quotes
+                    inQuotes = !inQuotes;
+                }
+                else if ( c == '"' )
+                {
+                    // If we hit a double quote, we toggle the inQuotes flag for handling characters inside quotes
                     inQuotes = !inQuotes;
                 }
                 else if (char.IsWhiteSpace(c) && !inQuotes)
