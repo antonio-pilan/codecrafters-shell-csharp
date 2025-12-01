@@ -194,7 +194,6 @@ namespace Commands
                     Console.WriteLine($"cat: {filePath}: No such file or directory");
                     continue; 
                 }
-
                 try
                 {
                     string content = File.ReadAllText(filePath);
