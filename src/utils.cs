@@ -65,7 +65,7 @@ namespace Utils
 
     public class DirectoryManipulation
     {
-        public static void fromPath(string newDirectory)
+        public static void FromPath(string newDirectory)
         {
             try
             {

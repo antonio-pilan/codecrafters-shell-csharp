@@ -14,6 +14,13 @@ class Program
             if (string.IsNullOrWhiteSpace(fullCommand)) continue;
 
             var (cmd, param) = CommandHandler.ParseCommand(fullCommand);
+            
+            if (param.Contains('\'') )
+            {
+                //param is raw string
+                param = param.Replace("'", "");
+                param = $"{param}";
+            }
             cmd = cmd.ToLower();
             
             CommandHandler.HandleCommand(cmd, param);

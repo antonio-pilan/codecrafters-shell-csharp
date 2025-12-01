@@ -1,12 +1,13 @@
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Utils;
 
 namespace Commands
 {
     public static class CommandHandler
     {
-        // Command dictionary
+        // Command dictionary: ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         private static readonly Dictionary<string, Action<string>> _commandMap = new()
         {
             { "exit", _ => Environment.Exit(0) },
@@ -16,7 +17,7 @@ namespace Commands
             { "cd", parameters => cdCommand(parameters) }
         };
 
-        // Handlers implementations:
+        // Handlers implementations: //////////////////////////////////////////////////////////////////////////////////////////////////////////////
         public static void HandleCommand(string command, string parameters)
         {
             if (_commandMap.TryGetValue(command, out Action<string>? action))
@@ -24,7 +25,7 @@ namespace Commands
             else if (PathVariables.GetPath(command) is string executablePath)
             {
                 var parametersList = parameters.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                try //TODO: implementar rodar algoritmo corretamente seguindo as especificações do codecrafters
+                try 
                 {
                     var process = new System.Diagnostics.Process();
                     process.StartInfo.FileName = command;
@@ -44,27 +45,56 @@ namespace Commands
                 Console.WriteLine($"{command}: command not found");    
         }
 
-        public static (string Command, string Parameters) ParseCommand(string fullCommand)
-        {
-            int firstSpaceIndex = fullCommand.IndexOf(' ');
-            string command;
-            string parameters = "";
+    public static (string Command, string Parameters) ParseCommand(string fullCommand)
+    {
+        var tokens = new List<string>();
+        var currentToken = new StringBuilder();
+        bool inQuotes = false;
 
-            if (firstSpaceIndex != -1)
-            {
-                command = fullCommand.Substring(0, firstSpaceIndex);
-                parameters = fullCommand.Substring(firstSpaceIndex + 1);
+        foreach (char c in fullCommand)
+        {
+            if (c == '\'')
+            {   
+                // If we hit a quote, we toggle the inQuotes flag for handling spaces inside quotes
+                inQuotes = !inQuotes;
+            }
+            else if (char.IsWhiteSpace(c) && !inQuotes)
+            {   
+                // Adds current token to the list and resets the buffer
+                if (currentToken.Length > 0)
+                {
+                    tokens.Add(currentToken.ToString());
+                    currentToken.Clear();
+                }
             }
             else
             {
-                command = fullCommand;
-                parameters = "";
+                currentToken.Append(c);
             }
-
-            return (command, parameters);
         }
 
-        // Commands implementations:
+        // Add the last token if there's any
+        if (currentToken.Length > 0)
+            tokens.Add(currentToken.ToString());
+        
+        // Return Handling //////////////////////
+        if (tokens.Count == 0)
+            return ("", "");
+        
+
+        // First token is the command
+        string command = tokens[0];
+
+        // Rebuild parameters string
+        string parameters = "";
+        
+        if (tokens.Count > 1)
+            parameters = string.Join(" ", tokens.Skip(1));
+
+        return (command, parameters);
+    }
+
+        // Commands implementations: ////////////////////////////////////////////////////////////////////////////////////////
         public static void TypeCommand(string parameters)
         {
             string parameterType = "";
@@ -118,7 +148,7 @@ namespace Commands
                     Directory.SetCurrentDirectory(homeDirectory);
                     break;
                 default:
-                    DirectoryManipulation.fromPath(parameters);
+                    DirectoryManipulation.FromPath(parameters);
                     break;
             }
         }
