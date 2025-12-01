@@ -98,97 +98,97 @@ namespace Commands
     }
 
         // Commands implementations: ////////////////////////////////////////////////////////////////////////////////////////
-        public static void TypeCommand(string[] parameters)
-        {
-            string parameterType = "";
-            string? executable = null;
-            string parameter = "";
-            int numberOfParameters = parameters.Length;
+    public static void TypeCommand(string[] parameters)
+    {
+        string parameterType = "";
+        string? executable = null;
+        string parameter = "";
+        int numberOfParameters = parameters.Length;
 
-            if (numberOfParameters == 1)
-            {
-                parameter = parameters[0];
-                executable = PathVariables.GetPath(parameter);
-            }
-            else
-            {
-                string errorString = String.Join(" ", parameters);
-                Console.WriteLine($"{errorString}: not found");
-                return;
-            }
-            
-            if (_commandMap.ContainsKey(parameter)) 
-                parameterType = "builtin";
-            else if (executable != null)
-            {
-                Console.WriteLine($"{parameter} is {executable}");
-                return;
-            }
-            else
-            {
-                Console.WriteLine($"{parameter}: not found");
-                return;
-            }
-            
-            Console.WriteLine($"{parameter} is a shell {parameterType}");
+        if (numberOfParameters == 1)
+        {
+            parameter = parameters[0];
+            executable = PathVariables.GetPath(parameter);
         }
-
-        public static void cdCommand(string[] parameters)
+        else
         {
-            var currentDirectory = Directory.GetCurrentDirectory();
-            string? parameter = null;
+            string errorString = String.Join(" ", parameters);
+            Console.WriteLine($"{errorString}: not found");
+            return;
+        }
+        
+        if (_commandMap.ContainsKey(parameter)) 
+            parameterType = "builtin";
+        else if (executable != null)
+        {
+            Console.WriteLine($"{parameter} is {executable}");
+            return;
+        }
+        else
+        {
+            Console.WriteLine($"{parameter}: not found");
+            return;
+        }
+        
+        Console.WriteLine($"{parameter} is a shell {parameterType}");
+    }
 
-            if (parameters.Length == 1)
-            {
-                parameter = parameters[0];
-            }
-            else return;
+    public static void cdCommand(string[] parameters)
+    {
+        var currentDirectory = Directory.GetCurrentDirectory();
+        string? parameter = null;
 
-            switch (parameter)
-            {
-                case "./" or ".":
-                    var parentDirectory = Directory.GetParent(currentDirectory);
+        if (parameters.Length == 1)
+        {
+            parameter = parameters[0];
+        }
+        else return;
+
+        switch (parameter)
+        {
+            case "./" or ".":
+                var parentDirectory = Directory.GetParent(currentDirectory);
+                if (parentDirectory != null)
+                {
+                    Directory.SetCurrentDirectory(parentDirectory.FullName);
+                }
+                break;
+
+            case "../" or "..":
+                int indexer = 0;
+                
+                while (indexer <2)
+                {
+                    currentDirectory = Directory.GetCurrentDirectory();
+                    parentDirectory = Directory.GetParent(currentDirectory);
                     if (parentDirectory != null)
                     {
                         Directory.SetCurrentDirectory(parentDirectory.FullName);
-                    }
+                    } 
+                    indexer += 1;
+                }
                     break;
-
-                case "../" or "..":
-                    int indexer = 0;
-                    
-                    while (indexer <2)
-                    {
-                        currentDirectory = Directory.GetCurrentDirectory();
-                        parentDirectory = Directory.GetParent(currentDirectory);
-                        if (parentDirectory != null)
-                        {
-                            Directory.SetCurrentDirectory(parentDirectory.FullName);
-                        } 
-                        indexer += 1;
-                    }
-                        break;
-                
-                case "~":
-                    var homeDirectory = DirectoryManipulation.GetHomeDirectory();
-                    Directory.SetCurrentDirectory(homeDirectory);
-                    break;
-                default:
-                    DirectoryManipulation.FromPath(parameter);
-                    break;
-            }
+            
+            case "~":
+                var homeDirectory = DirectoryManipulation.GetHomeDirectory();
+                Directory.SetCurrentDirectory(homeDirectory);
+                break;
+            default:
+                DirectoryManipulation.FromPath(parameter);
+                break;
         }
+    }
 
-        public static void CatCommand(string[] parameters)
+    public static void CatCommand(string[] parameters)
+    {
+        for (int i=0; i <= parameters.Length; i++)
         {
-            for (int i=0; i >= parameters.Length; i++)
-            {
-                Console.Write(parameters[i]);
+            Console.Write(parameters[i]);
 
-                if (i< parameters.Length - 1)
-                    Console.Write(" ");
-            }
-            Console.WriteLine();
+            if (i< parameters.Length - 1)
+                Console.Write(" ");
         }
+        Console.WriteLine();
+    }
     }
 }
