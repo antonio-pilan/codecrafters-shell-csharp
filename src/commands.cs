@@ -53,142 +53,169 @@ namespace Commands
                 Console.WriteLine($"{command}: command not found");    
         }
 
-    public static (string Command, string[] Parameters) ParseCommand(string fullCommand)
-    {
-        var tokens = new List<string>();
-        var currentToken = new StringBuilder();
-        bool inQuotes = false;
-
-        foreach (char c in fullCommand)
+        public static (string Command, string[] Parameters) ParseCommand(string fullCommand)
         {
-            if (c == '\'')
-            {   
-                // If we hit a quote, we toggle the inQuotes flag for handling spaces inside quotes
-                inQuotes = !inQuotes;
-            }
-            else if (char.IsWhiteSpace(c) && !inQuotes)
-            {   
-                // Adds current token to the list and resets the buffer
-                if (currentToken.Length > 0)
-                {
-                    tokens.Add(currentToken.ToString());
-                    currentToken.Clear();
+            var tokens = new List<string>();
+            var currentToken = new StringBuilder();
+            bool inQuotes = false;
+
+            foreach (char c in fullCommand)
+            {
+                if (c == '\'')
+                {   
+                    // If we hit a quote, we toggle the inQuotes flag for handling spaces inside quotes
+                    inQuotes = !inQuotes;
                 }
+                else if (char.IsWhiteSpace(c) && !inQuotes)
+                {   
+                    // Adds current token to the list and resets the buffer
+                    if (currentToken.Length > 0)
+                    {
+                        tokens.Add(currentToken.ToString());
+                        currentToken.Clear();
+                    }
+                }
+                else
+                {
+                    currentToken.Append(c);
+                }
+            }
+
+            // Add the last token if there's any
+            if (currentToken.Length > 0)
+                tokens.Add(currentToken.ToString());
+            
+            // Return Handling //////////////////////
+            if (tokens.Count == 0)
+                return ("", Array.Empty<string>());
+            
+
+            // First token is the command
+            string command = tokens[0];
+            string[] parameters = tokens.Skip(1).ToArray();
+
+            return (command, parameters);
+        }
+
+            // Commands implementations: ////////////////////////////////////////////////////////////////////////////////////////
+        public static void TypeCommand(string[] parameters)
+        {
+            string parameterType = "";
+            string? executable = null;
+            string parameter = "";
+            int numberOfParameters = parameters.Length;
+
+            if (numberOfParameters == 1)
+            {
+                parameter = parameters[0];
+                executable = PathVariables.GetPath(parameter);
             }
             else
             {
-                currentToken.Append(c);
+                string errorString = String.Join(" ", parameters);
+                Console.WriteLine($"{errorString}: not found");
+                return;
             }
+            
+            if (_commandMap.ContainsKey(parameter)) 
+                parameterType = "builtin";
+            else if (executable != null)
+            {
+                Console.WriteLine($"{parameter} is {executable}");
+                return;
+            }
+            else
+            {
+                Console.WriteLine($"{parameter}: not found");
+                return;
+            }
+            
+            Console.WriteLine($"{parameter} is a shell {parameterType}");
         }
 
-        // Add the last token if there's any
-        if (currentToken.Length > 0)
-            tokens.Add(currentToken.ToString());
-        
-        // Return Handling //////////////////////
-        if (tokens.Count == 0)
-            return ("", Array.Empty<string>());
-        
-
-        // First token is the command
-        string command = tokens[0];
-        string[] parameters = tokens.Skip(1).ToArray();
-
-        return (command, parameters);
-    }
-
-        // Commands implementations: ////////////////////////////////////////////////////////////////////////////////////////
-    public static void TypeCommand(string[] parameters)
-    {
-        string parameterType = "";
-        string? executable = null;
-        string parameter = "";
-        int numberOfParameters = parameters.Length;
-
-        if (numberOfParameters == 1)
+        public static void cdCommand(string[] parameters)
         {
-            parameter = parameters[0];
-            executable = PathVariables.GetPath(parameter);
-        }
-        else
-        {
-            string errorString = String.Join(" ", parameters);
-            Console.WriteLine($"{errorString}: not found");
-            return;
-        }
-        
-        if (_commandMap.ContainsKey(parameter)) 
-            parameterType = "builtin";
-        else if (executable != null)
-        {
-            Console.WriteLine($"{parameter} is {executable}");
-            return;
-        }
-        else
-        {
-            Console.WriteLine($"{parameter}: not found");
-            return;
-        }
-        
-        Console.WriteLine($"{parameter} is a shell {parameterType}");
-    }
+            var currentDirectory = Directory.GetCurrentDirectory();
+            string? parameter = null;
 
-    public static void cdCommand(string[] parameters)
-    {
-        var currentDirectory = Directory.GetCurrentDirectory();
-        string? parameter = null;
+            if (parameters.Length == 1)
+            {
+                parameter = parameters[0];
+            }
+            else return;
 
-        if (parameters.Length == 1)
-        {
-            parameter = parameters[0];
-        }
-        else return;
-
-        switch (parameter)
-        {
-            case "./" or ".":
-                var parentDirectory = Directory.GetParent(currentDirectory);
-                if (parentDirectory != null)
-                {
-                    Directory.SetCurrentDirectory(parentDirectory.FullName);
-                }
-                break;
-
-            case "../" or "..":
-                int indexer = 0;
-                
-                while (indexer <2)
-                {
-                    currentDirectory = Directory.GetCurrentDirectory();
-                    parentDirectory = Directory.GetParent(currentDirectory);
+            switch (parameter)
+            {
+                case "./" or ".":
+                    var parentDirectory = Directory.GetParent(currentDirectory);
                     if (parentDirectory != null)
                     {
                         Directory.SetCurrentDirectory(parentDirectory.FullName);
-                    } 
-                    indexer += 1;
-                }
+                    }
                     break;
-            
-            case "~":
-                var homeDirectory = DirectoryManipulation.GetHomeDirectory();
-                Directory.SetCurrentDirectory(homeDirectory);
-                break;
-            default:
-                DirectoryManipulation.FromPath(parameter);
-                break;
-        }
-    }
 
-    public static void CatCommand(string[] parameters)
-    {
-        for (int i=0; i < parameters.Length; i++)
+                case "../" or "..":
+                    int indexer = 0;
+                    
+                    while (indexer <2)
+                    {
+                        currentDirectory = Directory.GetCurrentDirectory();
+                        parentDirectory = Directory.GetParent(currentDirectory);
+                        if (parentDirectory != null)
+                        {
+                            Directory.SetCurrentDirectory(parentDirectory.FullName);
+                        } 
+                        indexer += 1;
+                    }
+                        break;
+                
+                case "~":
+                    var homeDirectory = DirectoryManipulation.GetHomeDirectory();
+                    Directory.SetCurrentDirectory(homeDirectory);
+                    break;
+                default:
+                    DirectoryManipulation.FromPath(parameter);
+                    break;
+            }
+        }
+
+        public static void CatCommand(string[] parameters)
         {
-            Console.Write(parameters[i]);
+            if (parameters.Length == 0)
+            {
+                Console.WriteLine("cat: file operand expected");
+                return;
+            }
 
-            if (i< parameters.Length - 1)
-                Console.Write(" ");
+            foreach (var filePath in parameters)
+            {
+                if (!File.Exists(filePath))
+                {
+                    Console.WriteLine($"cat: {filePath}: No such file or directory");
+                    continue; 
+                }
+
+                try
+                {
+                    string content = File.ReadAllText(filePath);
+                    Console.WriteLine(content);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    Console.WriteLine($"cat: {filePath}: Permission denied");
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine($"cat: read error: {ex.Message}");
+                }
+            }
         }
-        Console.WriteLine();
-    }
-    }
+
+
+
+
+
+
+
+    } 
 }
